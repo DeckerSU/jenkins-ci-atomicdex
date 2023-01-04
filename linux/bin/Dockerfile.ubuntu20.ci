@@ -1,0 +1,66 @@
+FROM ubuntu:20.04
+
+
+# prepare environment for build atomicdex desktop
+
+# docker build -f ~/bin/Dockerfile.ubuntu20.ci -t dex_desktop_builder .
+# docker run -u $(id -u ${USER}):$(id -g ${USER}) -v $PWD:$PWD -w $PWD -e HOME=/root -it dex_desktop_builder
+
+# https://serverfault.com/questions/949991/how-to-install-tzdata-on-a-ubuntu-docker-image
+# https://askubuntu.com/questions/355565/how-do-i-install-the-latest-version-of-cmake-from-the-command-line
+# https://askubuntu.com/questions/906230/run-sudo-command-with-non-root-user-in-docker-container
+# https://askubuntu.com/questions/147241/execute-sudo-without-password
+
+ARG DEBIAN_FRONTEND=noninteractive
+ARG BUILDER_NAME=builder
+ARG BUILDER_UID=1000
+ARG BUILDER_GID=1000
+ENV TZ=Europe/Amsterdam
+ENV CHOOSENIM_CHOOSE_VERSION=1.4.8
+
+RUN \
+    chmod -R 777 /root &&\
+    sed -i 's/archive\.ubuntu\.com/nl\.archive\.ubuntu\.com/g' /etc/apt/sources.list &&\
+    apt-get update &&\
+    apt-get install -y git build-essential tzdata wget curl pkg-config python3.9 python3.9-distutils &&\
+    apt-get install -y lsb-release software-properties-common gnupg &&\
+    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.9 777 &&\
+    curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && python3.9 get-pip.py &&\
+    pip3 install aqtinstall &&\
+    python3 -m aqt install-qt linux desktop 5.15.2 -O /root/Qt -b https://qt-mirror.dannhauer.de/ -m qtcharts debug_info qtwebengine &&\
+    ln -s /usr/lib/python3/dist-packages/apt_pkg.cpython-38-x86_64-linux-gnu.so /usr/lib/python3/dist-packages/apt_pkg.cpython-39-x86_64-linux-gnu.so &&\
+    ln -s /usr/lib/python3/dist-packages/gi/_gi.cpython-38-x86_64-linux-gnu.so /usr/lib/python3/dist-packages/gi/_gi.cpython-39-x86_64-linux-gnu.so &&\
+    sed -i 's/isAlive()/is_alive()/g' /usr/lib/python3/dist-packages/softwareproperties/SoftwareProperties.py &&\
+    wget https://apt.llvm.org/llvm.sh && chmod +x llvm.sh && ./llvm.sh 12 &&\
+    update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-12 777 &&\
+    update-alternatives --install /usr/bin/clang clang /usr/bin/clang-12 777 &&\
+    apt-get install -y autoconf libtool &&\
+    apt-get install -y zip unzip tar &&\
+    wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null &&\
+    apt-add-repository "deb https://apt.kitware.com/ubuntu/ $(lsb_release -cs) main" &&\
+    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 6AF7F09730B3F0A4 &&\
+    apt update && apt-get install -y cmake &&\
+    apt-get install -y libgl1-mesa-dev &&\
+    apt-get install -y sudo
+
+# install base deps needed for atomicdex-desktop linkage, making app bundle, launch linuxdeployqt
+RUN \
+    apt-get install -y zstd libpulse-dev libssl-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb1-dev libxcb-keysyms1-dev libxcb-render-util0-dev libxcb-xinerama0 libgstreamer-plugins-base1.0-dev &&\
+    apt-get install -y libasound2 libxtst6 libxi6 libxcursor1 libxrandr2 libxdamage1 libxcomposite-dev libnspr4 libnss3 &&\
+    apt-get install -y libxcb-shape0 libcups2 libgtk-3-0 &&\
+    apt-get install -y libfuse2 &&\
+    apt-get install ninja-build &&\
+    curl https://nim-lang.org/choosenim/init.sh > choosenim.sh && chmod +x choosenim.sh && ./choosenim.sh -y &&\
+    chmod +x /root/.choosenim/toolchains/nim-${CHOOSENIM_CHOOSE_VERSION}/bin/* &&\
+    chmod +x /root/.nimble/bin/*
+
+RUN \
+    groupadd --gid ${BUILDER_GID} --force ${BUILDER_NAME} &&\
+    adduser --disabled-password --gecos '' --no-create-home $BUILDER_NAME --uid ${BUILDER_UID} --gid ${BUILDER_GID} &&\
+    adduser $BUILDER_NAME sudo &&\
+    echo "$BUILDER_NAME ALL=(ALL:ALL) NOPASSWD: ALL" | tee /etc/sudoers.d/$BUILDER_NAME &&\
+    echo "export QT_INSTALL_CMAKE_PATH=/root/Qt/5.15.2/gcc_64/lib/cmake" >> ~/.env_bashrc &&\
+    echo "export QT_ROOT=/root/Qt/5.15.2" >> ~/.env_bashrc &&\
+    echo "export PATH=$PATH:/root/Qt/5.15.2/gcc_64/bin:/root/.nimble/bin" >> ~/.env_bashrc &&\
+    echo "export CXX=clang++-12" >> ~/.env_bashrc &&\
+    echo "export CC=clang-12" >> ~/.env_bashrc
