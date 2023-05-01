@@ -82,8 +82,8 @@ touch mm2src/common/build.rs
 
 # rustup target add aarch64-apple-ios
 # rustup override set nightly-2022-10-29
-cargo rustc --target aarch64-apple-ios --lib --profile ci --package mm2_bin_lib --crate-type=staticlib
-mv target/aarch64-apple-ios/ci/libmm2lib.a target/aarch64-apple-ios/ci/libmm2.a
-zip upload/mm2-${COMMIT_HASH}-ios-aarch64-CI target/aarch64-apple-ios/ci/libmm2.a -j
+cargo rustc --target aarch64-apple-ios --lib --package mm2_bin_lib --crate-type=staticlib
+mv target/aarch64-apple-ios/debug/libmm2lib.a target/aarch64-apple-ios/debug/libmm2.a
+zip upload/mm2-${COMMIT_HASH}-ios-aarch64-CI target/aarch64-apple-ios/debug/libmm2.a -j
 
 log_print "Build end ..."
