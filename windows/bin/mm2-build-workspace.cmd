@@ -46,3 +46,5 @@ type %builddir%\MM_VERSION
 
 cargo build --bin mm2 --release
 rem reg add "HKLM\Software\Microsoft\Windows Kits\Installed Roots" /f /v KitsRoot10 /t REG_SZ /d "C:\Program Files\Windows Kits\10\"
+mkdir %builddir%\upload
+pushd target\release && 7z a -tzip %builddir%\upload\mm2-%GIT_COMMIT:~0,9%-Win64.zip mm2.exe msvcp140.dll vcruntime140.dll && popd
