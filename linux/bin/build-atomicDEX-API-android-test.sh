@@ -86,6 +86,7 @@ cat MM_VERSION
 touch mm2src/common/build.rs
 
 # printenv > ${LOGFILE}
+# https://stackoverflow.com/questions/73105626/arm-linux-androideabi-ar-command-not-found-in-ndk
 
 docker run \
     -u $(id -u ${USER}):$(id -g ${USER}) \
@@ -94,6 +95,7 @@ docker run \
     -v $PWD:$PWD \
     -w $PWD \
     -e HOME=/root \
+    -e AR_armv7_linux_androideabi=llvm-ar \
     -e CC_armv7_linux_androideabi=armv7a-linux-androideabi21-clang \
     -e CARGO_TARGET_ARMV7_LINUX_ANDROIDEABI_LINKER=armv7a-linux-androideabi21-clang \
     mm2_android_builder \
@@ -121,6 +123,7 @@ docker run \
     -v $PWD:$PWD \
     -w $PWD \
     -e HOME=/root \
+    -e AR_aarch64_linux_android=llvm-ar \
     -e CC_aarch64_linux_android=aarch64-linux-android21-clang \
     -e CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER=aarch64-linux-android21-clang \
     mm2_android_builder \
