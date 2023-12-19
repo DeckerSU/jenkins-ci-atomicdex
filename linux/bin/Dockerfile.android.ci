@@ -38,10 +38,10 @@ RUN \
     rustup target add armv7-linux-androideabi &&\
     rustup target add aarch64-linux-android &&\
     rm -f /tmp/rustup-init.sh &&\
-    curl -o /tmp/ndk.zip https://dl.google.com/android/repository/android-ndk-r21b-linux-x86_64.zip &&\
+    curl -o /tmp/ndk.zip https://dl.google.com/android/repository/android-ndk-r23c-linux.zip &&\
     unzip -q /tmp/ndk.zip -d /tmp &&\
-    /tmp/android-ndk-r21b/build/tools/make_standalone_toolchain.py --force --install-dir /root/android-ndk --arch arm --api 21 &&\
-    /tmp/android-ndk-r21b/build/tools/make_standalone_toolchain.py --force --install-dir /root/android-ndk --arch arm64 --api 21 &&\
+    /tmp/android-ndk-r23c/build/tools/make_standalone_toolchain.py --force --install-dir /root/android-ndk --arch arm --api 23 &&\
+    /tmp/android-ndk-r23c/build/tools/make_standalone_toolchain.py --force --install-dir /root/android-ndk --arch arm64 --api 23 &&\
     rm /tmp/ndk.zip &&\
     chmod -R 777 /root
 
