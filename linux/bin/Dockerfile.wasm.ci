@@ -1,0 +1,78 @@
+# (c) Onur Özkan <onur@komodoplatform.com>, Decker <decker@komofoplatform.com>
+
+# Based on:
+# https://github.com/KomodoPlatform/komodo-defi-framework/blob/b0fd99e8406e67ea06435dd028991caa5f522b5c/.docker/Dockerfile.ci-container
+
+# Build:
+# docker build -f Dockerfile.wasm.ci -t mm2_wasm_builder .
+# Interactive exec. for tests:
+# docker run -u $(id -u ${USER}):$(id -g ${USER}) -v /home/$USER/.cargo/git:/root/.cargo/git -v /home/$USER/.cargo/registry:/root/.cargo/registry -v $PWD:$PWD -w $PWD -e HOME=/root -it mm2_wasm_builder
+
+FROM docker.io/debian:buster-slim
+RUN apt-get update -y
+
+RUN apt-get install -y 	\
+	build-essential 	\
+	cmake 			 	\
+	gcc-multilib 		\
+    ca-certificates 	\
+    curl 				\
+	wget 				\
+    gnupg 				\
+	git 				\
+	zip 				\
+	sudo
+
+RUN ln -s /usr/bin/python3 /bin/python
+
+RUN apt install -y  			\
+	software-properties-common 	\
+	lsb-release 				\
+	gnupg
+
+RUN curl --output llvm.sh https://apt.llvm.org/llvm.sh
+
+RUN chmod +x llvm.sh
+
+RUN ./llvm.sh 16
+
+RUN rm ./llvm.sh
+
+RUN ln -s /usr/bin/clang-16 /usr/bin/clang
+
+ENV AR=/usr/bin/llvm-ar-16
+ENV CC=/usr/bin/clang-16
+
+RUN mkdir -m 0755 -p /etc/apt/keyrings
+
+RUN curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+
+RUN echo \
+  "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \
+  "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+RUN apt-get update -y
+
+RUN apt-get install -y 	  \
+	docker-ce 			  \
+	docker-ce-cli 		  \
+	containerd.io 		  \
+	docker-buildx-plugin
+
+# RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+
+ENV PATH="/root/.cargo/bin:$PATH"
+RUN \
+    wget --https-only --secure-protocol=TLSv1_2 -O- https://sh.rustup.rs > /tmp/rustup-init.sh &&\
+    sh /tmp/rustup-init.sh -y --default-toolchain none &&\
+    . /root/.cargo/env &&\
+    rustup install nightly-2022-10-29 --no-self-update --profile=minimal &&\
+    rustup default nightly-2022-10-29 &&\
+    rustup component add rustfmt-preview &&\
+	rustup target add wasm32-unknown-unknown &&\
+    rm -f /tmp/rustup-init.sh &&\
+    chmod -R 777 /root
+
+RUN curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | bash -s -- -y
+
+
