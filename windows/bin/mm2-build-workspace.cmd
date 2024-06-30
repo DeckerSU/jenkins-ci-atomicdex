@@ -14,7 +14,7 @@ rem rustup toolchain install nightly-msvc
 rustup set default-host x86_64-pc-windows-msvc
 rem https://stackoverflow.com/questions/58226545/how-to-switch-between-rust-toolchains
 rem rustup override set nightly 
-rustup override set nightly-2022-10-29
+rustup override set nightly-2023-06-01
 rustc --version && cargo --version
 
 rem update cc and cmake crates to know about VS2022
