@@ -2,23 +2,26 @@ FROM ubuntu:xenial-20151218.1
 
 RUN \
     apt-get update &&\
-    apt-get install -y git build-essential libssl-dev wget &&\
+    apt-get install -y git build-essential libssl-dev wget unzip &&\
     apt-get install -y cmake &&\
     # https://github.com/rust-lang/rust-bindgen/blob/master/book/src/requirements.md#debian-based-linuxes
     apt-get install -y llvm-3.9-dev libclang-3.9-dev clang-3.9 &&\
     # openssl-sys requirements, cf. https://crates.io/crates/openssl-sys
     apt-get install -y pkg-config libssl-dev &&\
     apt-get install -y libudev-dev &&\
+    wget https://github.com/protocolbuffers/protobuf/releases/download/v3.20.3/protoc-3.20.3-linux-x86_64.zip -O /tmp/protoc.zip && \
+    unzip -j /tmp/protoc.zip bin/protoc -d /usr/local/bin/ && \
+    chmod +x /usr/local/bin/protoc &&\
     apt-get clean &&\
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* /tmp/protoc.zip
 
 RUN \
     wget -O- https://sh.rustup.rs > /tmp/rustup-init.sh &&\
     sh /tmp/rustup-init.sh -y --default-toolchain none &&\
     . /root/.cargo/env &&\
     rustup set profile minimal &&\
-    rustup install nightly-2022-10-29 &&\
-    rustup default nightly-2022-10-29 &&\
+    rustup install nightly-2023-06-01 &&\
+    rustup default nightly-2023-06-01 &&\
     # It seems that bindgen won't prettify without it:
     rustup component add rustfmt-preview &&\
     rm -f /tmp/rustup-init.sh &&\
