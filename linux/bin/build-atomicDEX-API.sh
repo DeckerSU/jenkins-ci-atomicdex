@@ -105,7 +105,8 @@ docker run \
     -w $PWD \
     -e HOME=/root \
     mm2_builder \
-    /bin/bash -c "source /root/.cargo/env && cargo build --release -vv --target-dir target-xenial && cargo rustc --lib --profile release --crate-type=staticlib --package mm2_bin_lib --target-dir target-xenial"
+    /bin/bash -c "source /root/.cargo/env && cargo build --release -vv --target-dir target-xenial"
+    # cargo rustc --lib --profile release --crate-type=staticlib --package mm2_bin_lib --target-dir target-xenial
 else
     cargo build --release -vv
 fi
@@ -114,6 +115,6 @@ fi
 strip -g target-xenial/release/mm2
 
 zip upload/mm2-${COMMIT_HASH}-${Agent_OS}-Release target-xenial/release/mm2 -j
-zip upload/mm2-${COMMIT_HASH}-${Agent_OS}-Release target-xenial/release/libmm2lib.a -j
+# zip upload/mm2-${COMMIT_HASH}-${Agent_OS}-Release target-xenial/release/libmm2lib.a -j
 
 log_print "Build end ..."
