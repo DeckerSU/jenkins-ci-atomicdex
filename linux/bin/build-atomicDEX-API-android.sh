@@ -97,7 +97,7 @@ docker run \
     -e CC_armv7_linux_androideabi=armv7a-linux-androideabi21-clang \
     -e CARGO_TARGET_ARMV7_LINUX_ANDROIDEABI_LINKER=armv7a-linux-androideabi21-clang \
     mm2_android_builder \
-    /bin/bash -c "rustup override set nightly-2022-10-29 && cargo rustc --target=armv7-linux-androideabi --lib --profile ci --crate-type=staticlib --package mm2_bin_lib"
+    /bin/bash -c "rustup install nightly-2023-06-01 && cargo rustc --target=armv7-linux-androideabi --lib --profile ci --crate-type=staticlib --package mm2_bin_lib"
 
 mv target/armv7-linux-androideabi/ci/libmm2lib.a target/armv7-linux-androideabi/ci/libmm2.a
 zip upload/mm2-${COMMIT_HASH}-${Agent_OS}-armv7-CI target/armv7-linux-androideabi/ci/libmm2.a -j
@@ -123,7 +123,7 @@ docker run \
     -e CC_aarch64_linux_android=aarch64-linux-android21-clang \
     -e CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER=aarch64-linux-android21-clang \
     mm2_android_builder \
-    /bin/bash -c "rustup override set nightly-2022-10-29 && cargo rustc --target=aarch64-linux-android --lib --profile ci --crate-type=staticlib --package mm2_bin_lib"
+    /bin/bash -c "rustup install nightly-2023-06-01 && cargo rustc --target=aarch64-linux-android --lib --profile ci --crate-type=staticlib --package mm2_bin_lib"
 
 mv target/aarch64-linux-android/ci/libmm2lib.a target/aarch64-linux-android/ci/libmm2.a
 zip upload/mm2-${COMMIT_HASH}-${Agent_OS}-aarch64-CI target/aarch64-linux-android/ci/libmm2.a -j

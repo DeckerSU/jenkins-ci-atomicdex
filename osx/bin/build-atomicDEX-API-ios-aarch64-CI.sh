@@ -80,8 +80,10 @@ fi
 cat MM_VERSION
 touch mm2src/common/build.rs
 
+rustup install nightly-2023-06-01
+# rustup override set nightly-2023-06-01
 # rustup target add aarch64-apple-ios
-# rustup override set nightly-2022-10-29
+
 cargo rustc --target aarch64-apple-ios --lib --release --package mm2_bin_lib --crate-type=staticlib
 mv target/aarch64-apple-ios/release/libmm2lib.a target/aarch64-apple-ios/release/libmm2.a
 zip upload/mm2-${COMMIT_HASH}-ios-aarch64-CI target/aarch64-apple-ios/release/libmm2.a -j
