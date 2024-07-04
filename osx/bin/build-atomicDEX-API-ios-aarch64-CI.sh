@@ -85,7 +85,7 @@ rustup install nightly-2023-06-01
 # rustup target add aarch64-apple-ios
 
 cargo rustc --target aarch64-apple-ios --lib --release --package mm2_bin_lib --crate-type=staticlib
-mv target/aarch64-apple-ios/release/libmm2lib.a target/aarch64-apple-ios/release/libmm2.a
+mv target/aarch64-apple-ios/release/libkdflib.a target/aarch64-apple-ios/release/libmm2.a
 zip upload/mm2-${COMMIT_HASH}-ios-aarch64-CI target/aarch64-apple-ios/release/libmm2.a -j
 
 log_print "Build end ..."

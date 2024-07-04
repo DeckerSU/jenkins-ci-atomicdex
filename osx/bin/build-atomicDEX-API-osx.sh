@@ -79,8 +79,9 @@ fi
 cat MM_VERSION
 touch mm2src/common/build.rs
 
-cargo build --release -vv
+cargo build --bin kdf --release -vv
 
+cp target/release/kdf target/release/mm2
 strip -S target/release/mm2 # -S Remove the debugging symbol table entries
 zip upload/mm2-${COMMIT_HASH}-${Agent_OS}-Release target/release/mm2 -j 
 
