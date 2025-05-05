@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# (c) Decker 2022
+# (c) Decker 2022-2025
 
 # --------------------------------------------------------------------------
 function init_colors() {
@@ -63,6 +63,16 @@ echo "##vso[task.setvariable variable=DEBUG_UPLOADED]${DEBUG_UPLOADED}"
 echo "##vso[task.setvariable variable=RELEASE_UPLOADED]${RELEASE_UPLOADED}"
 echo "##vso[task.setvariable variable=RELEASE_TAG]${RELEASE_TAG}"
 
+if [[ -n "${GIT_BRANCH:-}" && "${GIT_BRANCH}" == refs/tags/* ]]; then
+  KDF_BUILD_TAG="${GIT_BRANCH#refs/tags/}"
+elif tag=$(git describe --tags --exact-match HEAD 2>/dev/null); then
+  KDF_BUILD_TAG="$tag"
+else
+  KDF_BUILD_TAG=$(git log -n1 --pretty=format:%h)
+fi
+export KDF_BUILD_TAG
+echo "→ KDF_BUILD_TAG is set to '$KDF_BUILD_TAG'"
+
 ### Recreate upload dir
 rm -rf ${WORKSPACE}/upload
 mkdir ${WORKSPACE}/upload
@@ -98,6 +108,7 @@ docker run \
     -e AR_armv7_linux_androideabi=llvm-ar \
     -e CC_armv7_linux_androideabi=armv7a-linux-androideabi21-clang \
     -e CARGO_TARGET_ARMV7_LINUX_ANDROIDEABI_LINKER=armv7a-linux-androideabi21-clang \
+    -e KDF_BUILD_TAG=${KDF_BUILD_TAG} \
     mm2_android_builder \
     /bin/bash -c "rustup install nightly-2023-06-01 && cargo rustc --target=armv7-linux-androideabi --lib --profile release --crate-type=staticlib --package mm2_bin_lib"
 
@@ -126,6 +137,7 @@ docker run \
     -e AR_aarch64_linux_android=llvm-ar \
     -e CC_aarch64_linux_android=aarch64-linux-android21-clang \
     -e CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER=aarch64-linux-android21-clang \
+    -e KDF_BUILD_TAG=${KDF_BUILD_TAG} \
     mm2_android_builder \
     /bin/bash -c "rustup install nightly-2023-06-01 && cargo rustc --target=aarch64-linux-android --lib --profile release --crate-type=staticlib --package mm2_bin_lib"
 
