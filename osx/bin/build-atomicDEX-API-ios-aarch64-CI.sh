@@ -66,6 +66,16 @@ echo "##vso[task.setvariable variable=RELEASE_TAG]${RELEASE_TAG}"
 ### Set environment variables
 export PATH="$HOME/.cargo/bin:/usr/local/bin:$PATH"
 
+if [[ -n "${GIT_BRANCH:-}" && "${GIT_BRANCH}" == refs/tags/* ]]; then
+  KDF_BUILD_TAG="${GIT_BRANCH#refs/tags/}"
+elif tag=$(git describe --tags --exact-match HEAD 2>/dev/null); then
+  KDF_BUILD_TAG="$tag"
+else
+  KDF_BUILD_TAG=$(git log -n1 --pretty=format:%h)
+fi
+export KDF_BUILD_TAG
+echo "→ KDF_BUILD_TAG is set to '$KDF_BUILD_TAG'"
+
 ### Recreate upload dir
 rm -rf ${WORKSPACE}/upload
 mkdir ${WORKSPACE}/upload
