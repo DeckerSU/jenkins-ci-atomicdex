@@ -19,9 +19,9 @@ rustup install nightly-2023-06-01
 rustc --version && cargo --version
 
 rem update cc and cmake crates to know about VS2022
-cargo update -p cc
-cargo update -p cmake
-cargo update -p prost-build
+rem cargo update -p cc
+rem cargo update -p cmake
+rem cargo update -p prost-build
 
 rem https://github.com/dotnet/msbuild/issues/4230
 rem https://developercommunity.visualstudio.com/t/ucrt-doesnt-work-in-x64-msbuild/1184283
