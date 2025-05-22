@@ -1,5 +1,6 @@
 # Dockerfile with build environment for mm2 Android (c) Decker, 2022
-FROM ubuntu:xenial-20151218.1
+# FROM ubuntu:xenial-20151218.1
+FROM ubuntu:16.04
 
 # Build:
 # docker build -f ~/bin/Dockerfile.android.ci --build-arg BUILDER_NAME=$USER --build-arg BUILDER_UID=$(id -u) --build-arg BUILDER_GID=$(id -g) -t mm2_android_builder .
@@ -20,6 +21,7 @@ ENV TZ=Europe/Amsterdam
 # https://superuser.com/questions/321240/how-do-you-redirect-wget-response-to-standard-out
 
 RUN \
+    id -u 102 &>/dev/null && usermod -u 105 $(getent passwd 102 | cut -d: -f1) || true; \
     sed -i 's/archive\.ubuntu\.com/nl\.archive\.ubuntu\.com/g' /etc/apt/sources.list &&\
     apt-get update &&\
     apt-get install -y wget curl unzip python sudo &&\
